@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Modern Website</title>
+  <style>
+    /* Reset and basics */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { line-height: 1.6; transition: background 0.5s, color 0.5s; }
+    body.light { background-color: #f4f4f4; color: #222; }
+    body.dark { background-color: #222; color: #fff; }
+
+    /* Navigation */
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; position: sticky; top: 0; z-index: 1000; transition: background 0.5s; }
+    nav.light { background-color: #fff; color: #222; }
+    nav.dark { background-color: #222; color: #fff; }
+    nav .logo { font-size: 24px; font-weight: bold; }
+    nav ul { list-style: none; display: flex; }
+    nav ul li { margin-left: 20px; }
+    nav ul li a { text-decoration: none; color: inherit; transition: color 0.3s; }
+    nav ul li a:hover { color: #f39c12; }
+    .toggle-btn { cursor: pointer; padding: 10px 20px; border-radius: 5px; border: none; background-color: #f39c12; color: #fff; font-weight: bold; margin-left: 20px; }
+
+    /* Preloader */
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .spinner {
+      width: 80px;
+      height: 80px;
+      border: 8px solid rgba(255,255,255,0.1);
+      border-top: 8px solid #f39c12;
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite;
+      box-shadow: 0 0 20px #f39c12, 0 0 40px #f39c12;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Hero Section */
+    #home { position: relative; display: flex; justify-content: center; align-items: center; text-align: center; min-height: 100vh; overflow: hidden; }
+    #wave-canvas, #particle-canvas { position: absolute; top:0; left:0; width:100%; height:100%; }
+    #particle-canvas { z-index: 1; }
+    .hero-content { position: relative; z-index: 2; max-width: 800px; padding: 20px; color: #fff; }
+    #home h1 { font-size: 50px; margin-bottom: 20px; }
+    #home p { font-size: 20px; margin-bottom: 20px; }
+    #home button { padding: 10px 20px; font-size: 18px; border: none; border-radius: 5px; background-color: #f39c12; color: #fff; cursor: pointer; transition: background 0.3s; }
+    #home button:hover { background-color: #e67e22; }
+
+    /* Sections */
+    section { padding: 100px 50px; min-height: 100vh; opacity: 0; transform: translateY(50px); transition: opacity 1s ease-out, transform 1s ease-out; }
+    section.show { opacity: 1; transform: translateY(0); }
+    #about, #services, #contact { background-color: #f4f4f4; }
+    body.dark #about, body.dark #services, body.dark #contact { background-color: #333; color: #fff; }
+
+    h2 { text-align: center; margin-bottom: 40px; font-size: 36px; }
+
+    .content { max-width: 1000px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-around; }
+    .card { background: #fff; padding: 20px; margin: 20px; border-radius: 10px; flex: 1 1 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.3s, background 0.5s, color 0.5s; }
+    body.dark .card { background: #444; color: #fff; }
+    .card:hover { transform: translateY(-10px); }
+
+    /* Contact form */
+    form { display: flex; flex-direction: column; max-width: 500px; margin: auto; }
+    input, textarea { padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; transition: background 0.5s, color 0.5s; }
+    body.dark input, body.dark textarea { background: #555; color: #fff; border: 1px solid #666; }
+    button[type="submit"] { background-color: #222; color: #fff; }
+    button[type="submit"]:hover { background-color: #f39c12; }
+
+    /* Footer */
+    footer { text-align: center; padding: 30px 20px; background-color: #222; color: #fff; position: relative; z-index: 10; }
+    body.light footer { background-color: #ddd; color: #222; }
+    .social-icons { margin-top: 15px; }
+    .social-icons .icon {
+      display: inline-block; width: 40px; height: 40px; line-height: 40px; margin: 0 10px;
+      color: #fff; border: 2px solid #f39c12; border-radius: 50%; text-align: center; text-decoration: none; font-weight: bold;
+      transition: all 0.3s; box-shadow: 0 0 5px #f39c12, 0 0 10px #f39c12;
+    }
+    body.light .social-icons .icon { border-color: #222; box-shadow: 0 0 5px #222, 0 0 10px #222; color: #222; }
+    .social-icons .icon:hover { transform: scale(1.2) rotate(10deg); box-shadow: 0 0 10px #f39c12,0 0 20px #f39c12; color:#f39c12; }
+    body.light .social-icons .icon:hover { box-shadow:0 0 10px #222,0 0 20px #222; color:#222; }
+
+    /* Music button */
+    #music-toggle { cursor: pointer; }
+
+    /* Responsive */
+    @media(max-width:768px){
+      nav { flex-direction: column; }
+      nav ul { flex-direction: column; margin-top: 10px; }
+      nav ul li { margin: 10px 0; }
+      .content { flex-direction: column; align-items: center; }
+    }
+
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="light">
+
+  <!-- Preloader -->
+  <div id="preloader">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Background Music -->
+  <audio id="bg-music" loop>
+    <source src="cyberpunk_music.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <button id="music-toggle" style="
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background-color: #f39c12;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    z-index: 3000;
+  ">🔊 Music On</button>
+
+  <!-- Navigation -->
+  <nav class="light">
+    <div class="logo">MySite</div>
+    <div>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="toggle-btn" onclick="toggleMode()">Dark Mode</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home">
+    <canvas id="wave-canvas"></canvas>
+    <canvas id="particle-canvas"></canvas>
+    <div class="hero-content">
+      <h1>Welcome to My Modern Website</h1>
+      <p>Interactive neon particles, animated waves, smooth scrolling, dark/light mode, and responsive design!</p>
+      <button onclick="document.querySelector('#contact').scrollIntoView({behavior:'smooth'})">Contact Me</button>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about">
+    <h2>About Me</h2>
+    <div class="content">
+      <div class="card">
+        <h3>Who I Am</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.</p>
+      </div>
+      <div class="card">
+        <h3>My Mission</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services">
+    <h2>Services</h2>
+    <div class="content">
+      <div class="card">
+        <h3>Web Design</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.</p>
+      </div>
+      <div class="card">
+        <h3>Development</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.</p>
+      </div>
+      <div class="card">
+        <h3>SEO</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact">
+    <h2>Contact Me</h2>
+    <form>
+      <input type="text" placeholder="Your Name" required>
+      <input type="email" placeholder="Your Email" required>
+      <textarea rows="5" placeholder="Your Message" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 MySite. All Rights Reserved.</p>
+    <div class="social-icons">
+      <a href="#" class="icon" title="Facebook">F</a>
+      <a href="#" class="icon" title="Twitter">T</a>
+      <a href="#" class="icon" title="Instagram">I</a>
+      <a href="#" class="icon" title="LinkedIn">L</a>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // Preloader
+    window.addEventListener('load', () => {
+      const preloader = document.getElementById('preloader');
+      preloader.style.opacity = '0';
+      preloader.style.transition = 'opacity 0.5s ease';
+      setTimeout(() => { preloader.style.display = 'none'; }, 500);
+    });
+
+    // Dark/Light Mode Toggle
+    function toggleMode() {
+      const body = document.body;
+      const nav = document.querySelector('nav');
+      if(body.classList.contains('light')) {
+        body.classList.replace('light','dark');
+        nav.classList.replace('light','dark');
+        document.querySelector('.toggle-btn').textContent = "Light Mode";
+      } else {
+        body.classList.replace('dark','light');
+        nav.classList.replace('dark','light');
+        document.querySelector('.toggle-btn').textContent = "Dark Mode";
+      }
+    }
+
+    // Section Reveal
+    const sections = document.querySelectorAll('section');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('show'); });
+    }, { threshold: 0.2 });
+    sections.forEach(section => observer.observe(section));
+
+    // Animated Waves
+    const waveCanvas = document.getElementById('wave-canvas');
+    const wCtx = waveCanvas.getContext('2d');
+    waveCanvas.width = window.innerWidth;
+    waveCanvas.height = window.innerHeight;
+    let waveTime = 0;
+    function drawWaves() {
+      wCtx.clearRect(0,0,waveCanvas.width,waveCanvas.height);
+      const waveColors = ['rgba(0,255,255,0.05)','rgba(255,0,255,0.05)','rgba(255,140,0,0.05)'];
+      for(let i=0;i<waveColors.length;i++){
+        wCtx.beginPath();
+        wCtx.moveTo(0,waveCanvas.height/2);
+        for(let x=0;x<waveCanvas.width;x+=5){
+          const y = waveCanvas.height/2 + Math.sin(x*0.01 + waveTime + i)*30*(i+1);
+          wCtx.lineTo(x,y);
+        }
+        wCtx.strokeStyle = waveColors[i];
+        wCtx.lineWidth = 2;
+        wCtx.stroke();
+      }
+      waveTime += 0.02;
+      requestAnimationFrame(drawWaves);
+    }
+    drawWaves();
+
+    // Neon Particles
+    const particleCanvas = document.getElementById('particle-canvas');
+    const ctx = particleCanvas.getContext('2d');
+    particleCanvas.width = window.innerWidth;
+    particleCanvas.height = window.innerHeight;
+    let particlesArray;
+    const mouse = { x: null, y: null, radius: 150 };
+    window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+
+    class Particle {
+      constructor(x,y,size,speedX,speedY){
+        this.x=x; this.y=y; this.size=size; this.speedX=speedX; this.speedY=speedY;
+        this.color = `hsl(${Math.random()*360},100%,60%)`;
+      }
+      update(){
+        this.x+=this.speedX; this.y+=this.speedY;
+        if(this.x>canvas.width)this.x=0;
+        if(this.x<0)this.x=canvas.width;
+        if(this.y>canvas.height)this.y=0;
+        if(this.y<0)this.y=canvas.height;
+        const dx = this.x - mouse.x;
+        const dy = this.y - mouse.y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if(dist<mouse.radius){
+          const angle = Math.atan2(dy,dx);
+          const force = (mouse.radius-dist)/mouse.radius;
+          this.x += Math.cos(angle)*force*5;
+          this.y += Math.sin(angle)*force*5;
+        }
+      }
+      draw(){
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles(){
+      particlesArray = [];
+      for(let i=0;i<120;i++){
+        const size=Math.random()*3+1;
+        const x=Math.random()*canvas.width;
+        const y=Math.random()*canvas.height;
+        const speedX=(Math.random()-0.5)*1.5;
+        const speedY=(Math.random()-0.5)*1.5;
+        particlesArray.push(new Particle(x,y,size,speedX,speedY));
+      }
+    }
+
+    function connectParticles(){
+      const maxDist = 120;
+      for(let a=0;a<particlesArray.length;a++){
+        for(let b=a;b<particlesArray.length;b++){
+          const dx = particlesArray[a].x - particlesArray[b].x;
+          const dy = particlesArray[a].y - particlesArray[b].y;
+          const dist = Math.sqrt(dx*dx+dy*dy);
+          if(dist<maxDist){
+            const alpha = 1-dist/maxDist;
+            ctx.strokeStyle = `hsla(${Math.random()*360},100%,60%,${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.moveTo(particlesArray[a].x,particlesArray[a].y);
+            ctx.lineTo(particlesArray[b].x,particlesArray[b].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animateParticles(){
+      ctx.clearRect(0,0,particleCanvas.width,particleCanvas.height);
+      particlesArray.forEach(p=>{p.update();p.draw();});
+      connectParticles();
+      requestAnimationFrame(animateParticles);
+    }
+
+    window.addEventListener('resize', ()=>{
+      waveCanvas.width = particleCanvas.width = window.innerWidth;
+      waveCanvas.height = particleCanvas.height = window.innerHeight;
+      initParticles();
+    });
+
+    initParticles();
+    animateParticles();
+
+    // Background Music Control
+    const music = document.getElementById('bg-music');
+    const musicBtn = document.getElementById('music-toggle');
+
+    window.addEventListener('load', () => {
+      music.volume = 0.2;
+      const playPromise = music.play();
+      if(playPromise !== undefined){
+        playPromise.catch(() => { musicBtn.textContent = "🔇 Music Off"; });
+      }
